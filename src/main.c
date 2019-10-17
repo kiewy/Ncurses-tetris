@@ -41,6 +41,16 @@ int main(int argc, char *argv[])
     //     DECLARING DATA 
     //---------------------------------------------------
     //Time between automatic downwards movements of blocc 
+   
+    enum GAMESTATES{
+        STATE_ALIVE = 1,
+        STATE_DEAD = 2,
+        STATE_PAUSED = 3,
+        STATE_MENU = 4
+    };
+     
+    int i_gameState = STATE_ALIVE;
+
     double d_dropTime = 0.5;
     int    i_linePoints  = 100;
     int    i_blockPoints = 5;
@@ -124,9 +134,12 @@ int main(int argc, char *argv[])
     box(w_score,0,0);
 
     mvwprintw(w_score,2,2,"Score: %d",score);
-    mvwprintw(w_instrucs,2,2,"USE ARROWS TO MOVE");
-    mvwprintw(w_instrucs,4,2,"SPACEBAR TO DROP");
-    mvwprintw(w_instrucs,6,2,"UP ARROW TO ROTATE");
+    mvwprintw(w_instrucs,2,2,"- arrows to move");
+    mvwprintw(w_instrucs,3,2,"- spacebar to drop");
+    mvwprintw(w_instrucs,4,2,"- UP arrow to rotate");
+    mvwprintw(w_instrucs,5,2, "- q button to quit");
+    mvwprintw(w_instrucs,7,2, "- p to pause");
+    mvwprintw(w_instrucs,8,2, "- k to die");
  
     //FIRST REFRESH:
     refresh();
@@ -136,7 +149,7 @@ int main(int argc, char *argv[])
     //-----------------------------------------
     //            TETRIS LOGIC
     //-----------------------------------------
-
+    
     copyBlock(block_active,block_L);
 
     for(int i = 0; i < FIELD_HEIGHT*FIELD_WIDTH;++i){
@@ -155,53 +168,111 @@ int main(int argc, char *argv[])
         d_prevTime = d_currentTime;
         d_currentTime = (double)clock() / (double)CLOCKS_PER_SEC;
         
-        for(int i = 0; i < FIELD_HEIGHT*FIELD_WIDTH;++i)
-            iarr_tempField[i] = 0;
+        switch(i_gameState){
+            case STATE_ALIVE:   
+                for(int i = 0; i < FIELD_HEIGHT*FIELD_WIDTH;++i)
+                    iarr_tempField[i] = 0;
 
-        //Apparently "clock" doesn't account for the 10ms caused by the "getch"-delay. Add them manually.
-        d_timeAccum += d_currentTime - d_prevTime + 0.01;
-        
-        mvwprintw(w_score, 2, 2, "            ");
-        mvwprintw(w_score, 2, 2, "Score: %d",score);
-        wrefresh(w_score);
+                //Apparently "clock" doesn't account for the 10ms caused by the "getch"-delay. Add them manually.
+                d_timeAccum += d_currentTime - d_prevTime + 0.01;
+                
+                mvwprintw(w_score, 2, 2, "            ");
+                mvwprintw(w_score, 2, 2, "Score: %d",score);
+                wrefresh(w_score);
 
-        int i_col = 0; 
-        i_col = colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
-        mvwprintw(w_instrucs,8,2,"colstatus: %2d",i_col);
-        wrefresh(w_instrucs);
-         
-        if(d_timeAccum >= d_dropTime){
-            if( (i_col & 4) != 4){
-                ++i_activeYpos;
-                moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
-            }
-            else{
-                moveBlock(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
-                i_blockType = copyRandomBlock(block_active);
-                i_activeXpos = FIELD_WIDTH/2 - 2;
-                i_activeYpos = 0;
-                moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
-                score += i_blockPoints;
-            }
-            d_timeAccum = 0;
+                int i_col = 0; 
+                i_col = colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
+                wrefresh(w_instrucs);
+                 
+                if(d_timeAccum >= d_dropTime){
+                    if( (i_col & 4) != 4){
+                        ++i_activeYpos;
+                        moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
+                    }
+                    else{
+                        moveBlock(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
+                        i_blockType = copyRandomBlock(block_active);
+                        i_activeXpos = FIELD_WIDTH/2 - 2;
+                        i_activeYpos = 0;
+                        moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
+                        score += i_blockPoints;
+                    }
+                    d_timeAccum = 0;
+                }
+
+                if(cTemp == 'p')
+                    i_gameState = STATE_PAUSED;
+                
+                if((colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos) == 15 
+                    && i_activeYpos <= 2) || cTemp == 'k')
+                    i_gameState = STATE_DEAD;
+
+                cTemp = getch();
+               
+                /* THIS HANDLES KEYS REALLY WELL */
+                //he typed, hoping this time the program would compile
+                //And lo and behold, it fuckin did
+                keyHandler(cTemp,block_active,
+                           iarr_field,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,
+                           &i_activeYpos,&i_activeXpos, i_col, &score,
+                           i_blockPoints, &i_blockType);
+
+                score += clearFullLines(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,i_linePoints);
+
+                moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH, block_active, i_activeYpos, i_activeXpos); 
+                //END ALIVE-GAMESTATE-LOOP
+                
+                drawField(w_blocks,iarr_field,FIELD_HEIGHT,FIELD_WIDTH, ' ', 1);
+                drawField(w_blocks,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,' ', 0);
+
+
+                break;
+
+            case STATE_DEAD:
+                
+                for(int i = 0; i < FIELD_HEIGHT*FIELD_WIDTH;++i)
+                    iarr_field[i] = 0;
+
+                drawField(w_blocks,iarr_field,FIELD_HEIGHT,FIELD_WIDTH, ' ', 1);
+                drawField(w_blocks,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,' ', 0);
+
+                wattron(w_blocks,COLOR_PAIR(7));
+                mvwprintw(w_blocks,FIELD_HEIGHT / 2 - 2, FIELD_WIDTH/2 + 2,"YOU DIED");
+                mvwprintw(w_blocks,FIELD_HEIGHT/2-1,FIELD_WIDTH/2-3,"PRESS r TO RESTART");
+                wattroff(w_blocks,COLOR_PAIR(7));
+
+                cTemp = getch();
+                if(cTemp == 'r'){
+                    i_activeXpos = FIELD_WIDTH / 2 - 2;
+                    i_blockType = copyRandomBlock(block_active);
+                    i_activeYpos = 0;
+                    score = 0;
+                    i_gameState = STATE_ALIVE;
+                    cTemp = 'i';
+                }
+                break;
+            case STATE_PAUSED:
+                
+                cTemp = getch();
+
+                drawField(w_blocks,iarr_field,FIELD_HEIGHT,FIELD_WIDTH, ' ', 1);
+                drawField(w_blocks,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,' ', 0);
+
+                wattron(w_blocks,COLOR_PAIR(7));
+                mvwprintw(w_blocks,FIELD_HEIGHT/2,FIELD_WIDTH-2,"PAUSED");
+                mvwprintw(w_blocks,FIELD_HEIGHT/2+1,FIELD_WIDTH-9,"PRESS 'p' TO RESUME");
+                wattroff(w_blocks,COLOR_PAIR(7));
+                if(cTemp == 'p'){
+                    i_gameState = STATE_ALIVE;
+                    cTemp = 'i';
+                }
+                break;
+
+            case STATE_MENU:
+
+                break;
         }
 
-        cTemp = getch();
-       
-        /* THIS HANDLES KEYS REALLY WELL */
-        //he typed, hoping this time the program would compile
-        //And lo and behold, it fuckin did
-        keyHandler(cTemp,block_active,
-                   iarr_field,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,
-                   &i_activeYpos,&i_activeXpos, i_col, &score,
-                   i_blockPoints, &i_blockType);
-
-        score += clearFullLines(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,i_linePoints);
-
-        moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH, block_active, i_activeYpos, i_activeXpos); 
-
-        drawField(w_blocks,iarr_field,FIELD_HEIGHT,FIELD_WIDTH, ' ', 1);
-        drawField(w_blocks,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,' ', 0);
         wrefresh(w_blocks);
         refresh();
     }//End main game loop
