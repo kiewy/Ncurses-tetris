@@ -7,6 +7,7 @@ Code is a bit unwieldy.
 
 So, what's left to-do:
 
-1. Split code up into different files.
-2. Add game states (pause / 'dead' / start-screen / ..)
-3. Clean up the code / use more consistent naming etc
+1. Finish game states (pause / 'dead' / start-screen / ..)
+2. Clean up the code / use more consistent naming etc
+
+~Split code up into different files.~ <- somewhat done
