@@ -1,14 +1,15 @@
 CC=gcc
-CFLAGS=-Wall -lcurses
+LDFLAGS=-lncurses
+CFLAGS=-Wall 
 
 src = $(wildcard src/*.c)
 obj = $(src: src/%.c=obj/%.o) 
 
 ./bin/main: $(obj)
-	$(CC) $^ -o $@ $(CFLAGS)
+	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS)
 
 $(obj): obj/%.o :src/%.c
-	$(CC) $< -o $@ $(CFLAGS)
+	$(CC) $< -o $@ $(CFLAGS) $(LDFLAGS)
 
 .PHONY: clean
 clean:

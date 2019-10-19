@@ -1,20 +1,18 @@
 #include "keyHandler.h"
-
 #ifndef NCURSES
     #define NCURSES
     #include <ncurses.h>
 #endif
-
 #ifndef FUNCS
     #define FUNCS
     #include "funcs.h"
 #endif
     
 void keyHandler(int key,
-                int block_active[4][4],
+                int block_active[4][4], int block_next[4][4],
                 int iarr_field[], int iarr_tempField[], int i_fieldHeight, int i_fieldWidth,
                 int * ip_activeYpos, int * ip_activeXpos, int i_col,
-                int * score, int i_blockPoints, int * ip_blockType){
+                int * score, int i_blockPoints, int * ip_blockType, int * ip_blockTypeNext){
     switch(key){
         case KEY_RIGHT:
             if( (i_col & 2) < 2) 
@@ -29,7 +27,9 @@ void keyHandler(int key,
                 *ip_activeYpos += moveBlock(iarr_tempField,i_fieldHeight,i_fieldWidth, block_active,*ip_activeYpos+1,*ip_activeXpos);
             if( (i_col & 4) == 4){
                 moveBlock(iarr_field,i_fieldHeight,i_fieldWidth,block_active,*ip_activeYpos,*ip_activeXpos);   
-                *ip_blockType = copyRandomBlock(block_active);
+                *ip_blockType = *ip_blockTypeNext;
+				copyBlock(block_active,block_next);
+				*ip_blockTypeNext = copyRandomBlock(block_next);
                 *ip_activeXpos = i_fieldWidth/2 - 2;
                 *ip_activeYpos = 0;
                 *score += i_blockPoints;
@@ -41,9 +41,11 @@ void keyHandler(int key,
                 moveBlock(iarr_tempField,i_fieldHeight,i_fieldWidth,block_active,*ip_activeYpos,*ip_activeXpos);
             }
             moveBlock(iarr_field,i_fieldHeight,i_fieldWidth,block_active,*ip_activeYpos,*ip_activeXpos);
-            *ip_activeXpos = i_fieldWidth/2 - 2;
-            *ip_blockType = copyRandomBlock(block_active);
+            *ip_activeXpos = i_fieldWidth/2 - 1;
             *ip_activeYpos = 0;
+			*ip_blockType = *ip_blockTypeNext;
+			copyBlock(block_active,block_next);
+            *ip_blockTypeNext = copyRandomBlock(block_next);
             *score += i_blockPoints;
             break;
         case KEY_UP:
