@@ -133,8 +133,10 @@ int main(int argc, char *argv[])
 
 	w_blocks = newwin(FIELD_HEIGHT+2,FIELD_WIDTH*2+2,i_starty,i_startx);
 	w_nextBlock = newwin(6, 12, i_starty, i_startx + FIELD_WIDTH * 2 + 5);
-    w_instrucs = newwin(12,40,i_starty + 7,i_startx + FIELD_WIDTH*2 + 5);
-    w_score = newwin(5,30,i_starty+20,i_startx + FIELD_WIDTH*2 + 5);
+    w_instrucs = newwin(12,30,i_starty + 7,i_startx + FIELD_WIDTH*2 + 5);
+    w_score = newwin(5,20,i_starty+20,i_startx + FIELD_WIDTH*2 + 5);
+
+
 
     box(w_blocks,0,0);
     box(w_instrucs,0,0);
@@ -178,6 +180,11 @@ int main(int argc, char *argv[])
 		box(w_blocks,0,0);
 		box(w_instrucs,0,0);
 		box(w_score,0,0);
+
+		mvwprintw(w_blocks,0,(FIELD_WIDTH*2+2) / 2 - 3,"TETRIS");
+		mvwprintw(w_nextBlock,0,4,"NEXT");
+		mvwprintw(w_instrucs,0,11,"CONTROLS");
+		mvwprintw(w_score,0,7,"SCORE");
 
         d_prevTime = d_currentTime;
         d_currentTime = (double)clock() / (double)CLOCKS_PER_SEC;
