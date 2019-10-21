@@ -36,6 +36,8 @@ void drawField(WINDOW *w_field, const int iarr_field[], const int i_fieldHeight,
 
 void drawNextBlock(WINDOW *w_next, const int block_next[4][4], int size);
 
+void shadowBlock(WINDOW* w_field,int iarr_field[], const int block[4][4],int i_ypos, int i_xpos,char c_fill);
+
 int main(int argc, char *argv[])
 {
     //---------------------------------------------------
@@ -238,9 +240,9 @@ int main(int argc, char *argv[])
 
                 moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH, block_active, i_activeYpos, i_activeXpos); 
                 //END ALIVE-GAMESTATE-LOOP
-                
                 drawField(w_blocks,iarr_field,FIELD_HEIGHT,FIELD_WIDTH, ' ', 1);
                 drawField(w_blocks,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,' ', 0);
+                shadowBlock(w_blocks,iarr_field,block_active,i_activeYpos,i_activeXpos,'|');
 
                 break;
 
@@ -320,6 +322,24 @@ void drawField(WINDOW *w_field, const int iarr_field[], const int i_fieldHeight,
     }
 }
 
+void shadowBlock(WINDOW* w_field,int iarr_field[], const int block[4][4],int i_ypos, int i_xpos,char c_fill){
+	int i_ymax = i_ypos;
+	while((colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block,i_ymax,i_xpos) & 4) < 4){
+		++i_ymax;
+	}
+	for(int i = 0; i < 4; ++i){
+		for(int k = 0; k < 4; ++k){
+			if(block[i][k] != 0){
+				wattron(w_field,COLOR_PAIR(block[i][k]));
+				mvwaddch(w_field,i_ymax+i+1,(i_xpos+k)*2+1,c_fill);
+				mvwaddch(w_field,i_ymax+i+1,(i_xpos+k)*2+2,c_fill);
+				wattroff(w_field,COLOR_PAIR(block[i][k]));
+			}
+		}
+	}
+}
+ 
+
 void drawNextBlock(WINDOW *w_next, const int block_next[4][4], int i_size){
 	for(int i = 0; i < 4; ++i){
 	    for(int k = 1; k < 8; ++k){
@@ -338,4 +358,3 @@ void drawNextBlock(WINDOW *w_next, const int block_next[4][4], int i_size){
 		}
 	}
 }
- 
