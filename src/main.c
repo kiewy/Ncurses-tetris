@@ -241,8 +241,8 @@ int main(int argc, char *argv[])
                 moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH, block_active, i_activeYpos, i_activeXpos); 
                 //END ALIVE-GAMESTATE-LOOP
                 drawField(w_blocks,iarr_field,FIELD_HEIGHT,FIELD_WIDTH, ' ', 1);
-                drawField(w_blocks,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,' ', 0);
                 shadowBlock(w_blocks,iarr_field,block_active,i_activeYpos,i_activeXpos,'|');
+                drawField(w_blocks,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,' ', 0);
 
                 break;
 
