@@ -5,6 +5,7 @@
 #endif
 #ifndef FUNCS
     #define FUNCS
+    #define FUNCS
     #include "funcs.h"
 #endif
     
@@ -51,12 +52,13 @@ void keyHandler(int key,
         case KEY_UP:
             do{}while(0);
             int block_copy[4][4] = {0};
+			//jank
             copyBlock(block_copy, block_active);
             int rot = *ip_blockType > 2 ? 3 : 4;
             rotateBlock(block_active,rot);
             int tries = 0;
             while( (colCheck(iarr_field,i_fieldHeight,i_fieldWidth,block_active,*ip_activeYpos,*ip_activeXpos) == 15 ) 
-                    && tries < 5){
+                    && tries < 4){
                 //Half-assed implementation of "wallkicks" and "floor-kicks" here.
                 ++tries;
                 switch(tries){
@@ -73,14 +75,10 @@ void keyHandler(int key,
                         break;
                     case 4:
                         *ip_activeYpos -= 1;
-                        *ip_activeYpos -= 1;
                         break;
-                    case 5:
-                        *ip_activeYpos -= 1;
-                        break;
-                }//End switch
+				}//End switch
             }//End while
-            if(tries == 5){
+            if(tries == 4){
                 copyBlock(block_active,block_copy);   
             }
             break; //End case 'r'
