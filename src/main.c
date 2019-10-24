@@ -285,18 +285,19 @@ int main(int argc, char *argv[])
 				//'Enter name' function
 				//Because we keep looping over STATE_DEAD, we need this i_tempCounter;
 				//only the first loop should handle the name of the player
-				timeout(10);
 				if(i_tempCounter == 0){
 					++i_tempCounter;
 					FILE * scores = fopen("scores.tetris","ab+");
 					appendScore(score,i_starty+4,i_startx-4,scores);
 					fclose(scores);
+					mvwprintw(w_score,4,2,"--------------HIGHSCORES--------------");
+					FILE * f = fopen("scores.tetris","a+");
+					printScores(f,w_score,5,2);
+					timeout(10);
+					fclose(f);
+					box(w_score,0,0);
+					wrefresh(w_score);
 				}
-
-				mvwprintw(w_score,4,2,"--------------HIGHSCORES--------------");
-				FILE * f = fopen("scores.tetris","a+");
-				printScores(f,w_score,5,2);
-				fclose(f);
 
 				//Reset the timeout pls
                 cTemp = getch();
