@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 	box(w_nextBlock,0,0);
 
     mvwprintw(w_score,2,2,"Current score: %-7d",score);
-	mvwprintw(w_score,4,2,"Best: ");
+	mvwprintw(w_score,4,2,"--------------HIGHSCORES--------------");
 	FILE * f = fopen("scores.tetris","a+");
 	printScores(f,w_score,5,2);
 	fclose(f);
@@ -285,20 +285,20 @@ int main(int argc, char *argv[])
 				//'Enter name' function
 				//Because we keep looping over STATE_DEAD, we need this i_tempCounter;
 				//only the first loop should handle the name of the player
+				timeout(10);
 				if(i_tempCounter == 0){
 					++i_tempCounter;
 					FILE * scores = fopen("scores.tetris","ab+");
-					appendScore(score,10,10,scores);
+					appendScore(score,i_starty+4,i_startx-4,scores);
 					fclose(scores);
 				}
 
-				mvwprintw(w_score,4,2,"Best: ");
+				mvwprintw(w_score,4,2,"--------------HIGHSCORES--------------");
 				FILE * f = fopen("scores.tetris","a+");
 				printScores(f,w_score,5,2);
 				fclose(f);
 
 				//Reset the timeout pls
-				timeout(10);
                 cTemp = getch();
                 if(cTemp == 'r'){
 					
@@ -402,7 +402,8 @@ void drawNextBlock(WINDOW *w_next, const int block_next[4][4], int i_size){
 void appendScore(int i_score, int i_promptY, int i_promptX,FILE* fp_file){
 
 	WINDOW* w_askUser = newwin(9, 30, i_promptY, i_promptX);
-	char cp_name[10] = {' '};
+	char cp_name[11] = {' '};
+	cp_name[10] = '\0';
 
 	int c_new = ' ';
 	int i = 0;
@@ -430,7 +431,7 @@ void appendScore(int i_score, int i_promptY, int i_promptX,FILE* fp_file){
 		mvwprintw(w_askUser,5,2,"%2d characters left",10-i);
 		wrefresh(w_askUser);
 	}//end while
-	fwrite(cp_name,10*sizeof(char),1,fp_file);
+	fwrite(cp_name,11*sizeof(char),1,fp_file);
 	fwrite(&i_score,sizeof(int),1,fp_file);
 	//CLEAR THE WINDOW BEFORE DELETING IT
 	werase(w_askUser);
@@ -439,29 +440,29 @@ void appendScore(int i_score, int i_promptY, int i_promptX,FILE* fp_file){
 }
 
 void printScores(FILE* f, WINDOW* w, int i_startY, int i_startX){
-	char carr_maxNames[30]  = {' '};
+	char carr_maxNames[33]  = {' '};
 	int  iarr_maxScores[3]  = { 0 };
 
-	char carr_tempName[10]  = {' '};
+	char carr_tempName[11]  = {' '};
 	int  i_tempScore        = 0;
 	
 	//Fread returns the number of successfully read bytes!
 	for(int i = 0; i < 3; ++i){
 		rewind(f);
-		while(fread(carr_tempName,1,10,f) == 10 && 
+		while(fread(carr_tempName,1,11,f) == 11 && 
 			  fread(&i_tempScore,4,1,f) == 1){
 
 			if(i_tempScore > iarr_maxScores[i]){
 				if(i == 0){
 					iarr_maxScores[i] = i_tempScore;
-					for(int n = 0; n < 10; ++n){
-						carr_maxNames[i*10+n] = carr_tempName[n];
+					for(int n = 0; n < 11; ++n){
+						carr_maxNames[i*11+n] = carr_tempName[n];
 					}
 				}
 				else{
 					if(i_tempScore < iarr_maxScores[i-1]) {
-						for(int n = 0; n < 10; ++n){
-							carr_maxNames[i*10+n] = carr_tempName[n];
+						for(int n = 0; n < 11; ++n){
+							carr_maxNames[i*11+n] = carr_tempName[n];
 						}
 						iarr_maxScores[i] = i_tempScore;
 					}//end if
@@ -470,8 +471,8 @@ void printScores(FILE* f, WINDOW* w, int i_startY, int i_startX){
 		}//End while
 	}
 	for(int i = 0; i < 3; ++i){
-		for(int n = 0; n < 10; ++n){
-			carr_tempName[n] = carr_maxNames[i*10+n];
+		for(int n = 0; n < 11; ++n){
+			carr_tempName[n] = carr_maxNames[i*11+n];
 		}
 		mvwprintw(w,i_startY+i,i_startX,"Score:  %-10s  - %7d \n",carr_tempName,iarr_maxScores[i]);
 	}
