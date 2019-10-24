@@ -1,3 +1,8 @@
+#ifndef STDIO
+	#define STDIO
+	#include <stdio.h>
+#endif
+
 #ifndef NCURSES
     #define NCURSES
     #include <ncurses.h>
@@ -31,6 +36,9 @@
 #define FIELD_WIDTH 10
 #define FIELD_HEIGHT 25 
 
+void appendScore(int i_score, int i_promptY, int i_promptX,FILE* fp_file);
+void printScores(FILE* f, WINDOW* w, int i_startY, int i_startX);
+
 void drawField(WINDOW *w_field, const int iarr_field[], const int i_fieldHeight, const int i_fieldWidth, 
                char cFill, int clearZeroes);
 
@@ -43,8 +51,9 @@ int main(int argc, char *argv[])
     //---------------------------------------------------
     //     DECLARING DATA 
     //---------------------------------------------------
-    //Time between automatic downwards movements of blocc 
-   
+    //trashy temporary counter that somehow pops up in every program i try to make
+	int i_tempCounter = 0;
+
     enum GAMESTATES{
         STATE_ALIVE = 1,
         STATE_DEAD = 2,
@@ -134,16 +143,19 @@ int main(int argc, char *argv[])
 	w_blocks = newwin(FIELD_HEIGHT+2,FIELD_WIDTH*2+2,i_starty,i_startx);
 	w_nextBlock = newwin(6, 12, i_starty, i_startx + FIELD_WIDTH * 2 + 5);
     w_instrucs = newwin(12,30,i_starty + 7,i_startx + FIELD_WIDTH*2 + 5);
-    w_score = newwin(5,20,i_starty+20,i_startx + FIELD_WIDTH*2 + 5);
-
-
+    w_score = newwin(10,40,i_starty+20,i_startx + FIELD_WIDTH*2 + 5);
 
     box(w_blocks,0,0);
     box(w_instrucs,0,0);
     box(w_score,0,0);
 	box(w_nextBlock,0,0);
 
-    mvwprintw(w_score,2,2,"Score: %d",score);
+    mvwprintw(w_score,2,2,"Current score: %-7d",score);
+	mvwprintw(w_score,4,2,"Best: ");
+	FILE * f = fopen("scores.tetris","a+");
+	printScores(f,w_score,5,2);
+	fclose(f);
+
     mvwprintw(w_instrucs,2,2,"- arrows to move");
     mvwprintw(w_instrucs,3,2,"- spacebar to drop");
     mvwprintw(w_instrucs,4,2,"- UP arrow to rotate");
@@ -201,7 +213,7 @@ int main(int argc, char *argv[])
                 d_timeAccum += d_currentTime - d_prevTime + 0.01;
                 
                 mvwprintw(w_score, 2, 2, "            ");
-                mvwprintw(w_score, 2, 2, "Score: %d",score);
+                mvwprintw(w_score, 2, 2, "Current score: %-7d",score);
                 wrefresh(w_score);
 
                 int i_col = 0; 
@@ -242,8 +254,11 @@ int main(int argc, char *argv[])
                 score += clearFullLines(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,i_linePoints);
 
                 if((colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos) == 15 
-                    && i_activeYpos <= 2) || cTemp == 'k')
+                    && i_activeYpos <= 2) || cTemp == 'k'){
                     i_gameState = STATE_DEAD;
+					//Set the tempCounter, because STATE_DEAD needs it
+					i_tempCounter = 0;
+				}
 
                 moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH, block_active, i_activeYpos, i_activeXpos); 
                 //END ALIVE-GAMESTATE-LOOP
@@ -254,6 +269,7 @@ int main(int argc, char *argv[])
                 break;
 
             case STATE_DEAD:
+				while(0){};
                 
                 for(int i = 0; i < FIELD_HEIGHT*FIELD_WIDTH;++i)
                     iarr_field[i] = 0;
@@ -266,8 +282,26 @@ int main(int argc, char *argv[])
                 mvwprintw(w_blocks,FIELD_HEIGHT/2-1,FIELD_WIDTH/2-3,"PRESS r TO RESTART");
                 wattroff(w_blocks,COLOR_PAIR(7));
 
+				//'Enter name' function
+				//Because we keep looping over STATE_DEAD, we need this i_tempCounter;
+				//only the first loop should handle the name of the player
+				if(i_tempCounter == 0){
+					++i_tempCounter;
+					FILE * scores = fopen("scores.tetris","ab+");
+					appendScore(score,10,10,scores);
+					fclose(scores);
+				}
+
+				mvwprintw(w_score,4,2,"Best: ");
+				FILE * f = fopen("scores.tetris","a+");
+				printScores(f,w_score,5,2);
+				fclose(f);
+
+				//Reset the timeout pls
+				timeout(10);
                 cTemp = getch();
                 if(cTemp == 'r'){
+					
                     i_activeXpos = FIELD_WIDTH / 2 - 2;
                     i_blockType = copyRandomBlock(block_active);
                     i_activeYpos = 0;
@@ -363,5 +397,82 @@ void drawNextBlock(WINDOW *w_next, const int block_next[4][4], int i_size){
 			mvwaddch(w_next,i+offset,2*k+offset+1,' ');
 			wattroff(w_next,COLOR_PAIR(block_next[i][k]));
 		}
+	}
+}
+void appendScore(int i_score, int i_promptY, int i_promptX,FILE* fp_file){
+
+	WINDOW* w_askUser = newwin(9, 30, i_promptY, i_promptX);
+	char cp_name[10] = {' '};
+
+	int c_new = ' ';
+	int i = 0;
+	
+	box(w_askUser,0,0);
+	mvwprintw(w_askUser, 2, 2,"YOU DIED.");
+	mvwprintw(w_askUser, 3, 2, "ENTER YOUR NAME:");
+	mvwprintw(w_askUser, 6, 2, "PRESS <ENTER> TO SUBMIT");
+	mvwprintw(w_askUser,5,2,"%2d characters left",10-i);
+	//Make getch blocking again!	
+	timeout(-1);
+	wrefresh(w_askUser);
+	while(c_new != '\n'){
+		 c_new = getch();
+		
+		if(i > 0 && c_new == KEY_BACKSPACE){
+			cp_name[--i] = ' ';
+		}
+		else if(c_new != KEY_BACKSPACE && c_new != '\n' && i < 10){
+			cp_name[i] = c_new;
+			++i;
+		}
+		
+		mvwprintw(w_askUser,4,2,"%-10s",cp_name);
+		mvwprintw(w_askUser,5,2,"%2d characters left",10-i);
+		wrefresh(w_askUser);
+	}//end while
+	fwrite(cp_name,10*sizeof(char),1,fp_file);
+	fwrite(&i_score,sizeof(int),1,fp_file);
+	//CLEAR THE WINDOW BEFORE DELETING IT
+	werase(w_askUser);
+	wrefresh(w_askUser);
+	delwin(w_askUser);
+}
+
+void printScores(FILE* f, WINDOW* w, int i_startY, int i_startX){
+	char carr_maxNames[30]  = {' '};
+	int  iarr_maxScores[3]  = { 0 };
+
+	char carr_tempName[10]  = {' '};
+	int  i_tempScore        = 0;
+	
+	//Fread returns the number of successfully read bytes!
+	for(int i = 0; i < 3; ++i){
+		rewind(f);
+		while(fread(carr_tempName,1,10,f) == 10 && 
+			  fread(&i_tempScore,4,1,f) == 1){
+
+			if(i_tempScore > iarr_maxScores[i]){
+				if(i == 0){
+					iarr_maxScores[i] = i_tempScore;
+					for(int n = 0; n < 10; ++n){
+						carr_maxNames[i*10+n] = carr_tempName[n];
+					}
+				}
+				else{
+					if(i_tempScore < iarr_maxScores[i-1]) {
+						for(int n = 0; n < 10; ++n){
+							carr_maxNames[i*10+n] = carr_tempName[n];
+						}
+						iarr_maxScores[i] = i_tempScore;
+					}//end if
+				}//End else
+			}//end if score larger than tempscore
+		}//End while
+	}
+	for(int i = 0; i < 3; ++i){
+		for(int n = 0; n < 10; ++n){
+			carr_tempName[n] = carr_maxNames[i*10+n];
+		}
+		mvwprintw(w,i_startY+i,i_startX,"Score:  %-10s  - %7d \n",carr_tempName,iarr_maxScores[i]);
 	}
 }
