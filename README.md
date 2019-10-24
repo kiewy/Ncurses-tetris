@@ -13,5 +13,5 @@ It's got:
 So, what's left to-do:
 
 - Clean code up a ~bit.~ lot
-- Add difficulty levels maybe
+- ~Add difficulty levels maybe~ "kind of" done
 - Add "save files"
