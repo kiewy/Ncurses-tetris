@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
      
     int i_gameState = STATE_ALIVE;
 
-    double d_dropTime = 0.5;
+    double d_dropTime = 0.7;
     int    i_linePoints  = 100;
     int    i_blockPoints = 5;
 
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
     mvwprintw(w_score,2,2,"Current score: %-7d",score);
 	mvwprintw(w_score,4,2,"--------------HIGHSCORES--------------");
-	FILE * f = fopen("scores.tetris","a+");
+	FILE * f = fopen("./scores.tetris","a+");
 	printScores(f,w_score,5,2);
 	fclose(f);
 
@@ -249,9 +249,11 @@ int main(int argc, char *argv[])
                 keyHandler(cTemp,block_active,block_next,
                            iarr_field,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,
                            &i_activeYpos,&i_activeXpos, i_col, &score,
-                           i_blockPoints, &i_blockType, &i_blockTypeNext);
+                           i_blockPoints, &i_blockType, &i_blockTypeNext,
+						   &d_dropTime);
 
                 score += clearFullLines(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,i_linePoints);
+				d_dropTime = adjustSpeed(score);
 
                 if((colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos) == 15 
                     && i_activeYpos <= 2) || cTemp == 'k'){
@@ -439,6 +441,7 @@ void appendScore(int i_score, int i_promptY, int i_promptX,FILE* fp_file){
 	wrefresh(w_askUser);
 	delwin(w_askUser);
 }
+
 
 void printScores(FILE* f, WINDOW* w, int i_startY, int i_startX){
 	char carr_maxNames[33]  = {' '};

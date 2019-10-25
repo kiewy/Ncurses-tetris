@@ -176,3 +176,19 @@ int copyRandomBlock(int block_in[4][4]){
     }//End switch
     return i_oneToSeven;
 }
+
+double adjustSpeed(int i_score){
+	double i_speed = 0.7;
+	
+	if(i_score >= 10000)
+		i_speed -= 0.5;
+	else if(i_score >= 8000)
+		i_speed -= 0.4;
+	else if(i_score >= 5000)
+		i_speed -= 0.3;
+	else if(i_score >= 1000){
+		i_speed -= 0.2;
+	}
+	return i_speed;
+}
+
