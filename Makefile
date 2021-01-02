@@ -10,7 +10,3 @@ obj = $(src: src/%.c=obj/%.o)
 
 $(obj): obj/%.o :src/%.c
 	$(CC) $< -o $@ $(CFLAGS) $(LDFLAGS)
-
-.PHONY: clean
-clean:
-	rm -f $(obj) myprog
