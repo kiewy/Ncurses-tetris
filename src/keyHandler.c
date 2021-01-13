@@ -9,6 +9,7 @@
     #include "funcs.h"
 #endif
     
+// Returns which key was pressed
 void keyHandler(int key,
                 int block_active[4][4], int block_next[4][4],
                 int iarr_field[], int iarr_tempField[], int i_fieldHeight, int i_fieldWidth,

@@ -156,9 +156,9 @@ int main(int argc, char *argv[])
 	printScores(f,w_score,5,2);
 	fclose(f);
 
-    mvwprintw(w_instrucs,2,2,"- arrows to move");
-    mvwprintw(w_instrucs,3,2,"- spacebar to drop");
-    mvwprintw(w_instrucs,4,2,"- UP arrow to rotate");
+    mvwprintw(w_instrucs,2,2, "- arrows to move");
+    mvwprintw(w_instrucs,3,2, "- spacebar to drop");
+    mvwprintw(w_instrucs,4,2, "- UP arrow to rotate");
     mvwprintw(w_instrucs,5,2, "- q button to quit");
     mvwprintw(w_instrucs,7,2, "- p to pause");
     mvwprintw(w_instrucs,8,2, "- k to die");
@@ -219,13 +219,18 @@ int main(int argc, char *argv[])
                 int i_col = 0; 
                 i_col = colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
                 wrefresh(w_instrucs);
-                 
-                if(d_timeAccum >= d_dropTime){
+
+				// when the timeAccum sets up a new block, use this to make sure
+				// That the keyHandler DOESNT set up a new  block; this would cause two blocks to collide
+				// and thus, the game to end
+				int skip_keycheck = 0;
+				if(d_timeAccum >= d_dropTime){
                     if( (i_col & 4) != 4){
                         ++i_activeYpos;
                         moveBlock(iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
                     }
                     else{
+						skip_keycheck = 1;
                         moveBlock(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
 						copyBlock(block_active, block_next);
 						i_blockType         = i_blockTypeNext;
@@ -238,19 +243,18 @@ int main(int argc, char *argv[])
                     d_timeAccum = 0;
                 }
 
+				if(!skip_keycheck) {
+					keyHandler(cTemp,block_active,block_next,
+							   iarr_field,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,
+							   &i_activeYpos,&i_activeXpos, i_col, &score,
+							   i_blockPoints, &i_blockType, &i_blockTypeNext,
+							   &d_dropTime);
+				}
+ 
                 if(cTemp == 'p')
                     i_gameState = STATE_PAUSED;
                 
                 cTemp = getch();
-               
-                /* THIS HANDLES KEYS REALLY WELL */
-                //he typed, hoping this time the program would compile
-                //And lo and behold, it fuckin did
-                keyHandler(cTemp,block_active,block_next,
-                           iarr_field,iarr_tempField,FIELD_HEIGHT,FIELD_WIDTH,
-                           &i_activeYpos,&i_activeXpos, i_col, &score,
-                           i_blockPoints, &i_blockType, &i_blockTypeNext,
-						   &d_dropTime);
 
                 score += clearFullLines(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,i_linePoints);
 				d_dropTime = adjustSpeed(score);
@@ -354,6 +358,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+// Idk what this is. Draw the main window maybe?
 void drawField(WINDOW *w_field, const int iarr_field[], const int i_fieldHeight, const int i_fieldWidth, 
                char cFill, int clearZeroes){
     for(int i = 0; i < i_fieldWidth*i_fieldHeight; ++i){
@@ -366,6 +371,7 @@ void drawField(WINDOW *w_field, const int iarr_field[], const int i_fieldHeight,
     }
 }
 
+// Little block shadow at the bottom
 void shadowBlock(WINDOW* w_field,int iarr_field[], const int block[4][4],int i_ypos, int i_xpos,char c_fill){
 	int i_ymax = i_ypos;
 	while((colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block,i_ymax,i_xpos) & 4) < 4){
@@ -383,7 +389,7 @@ void shadowBlock(WINDOW* w_field,int iarr_field[], const int block[4][4],int i_y
 	}
 }
  
-
+// Draw the next block we're about to get into the little window
 void drawNextBlock(WINDOW *w_next, const int block_next[4][4], int i_size){
 	for(int i = 0; i < 4; ++i){
 	    for(int k = 1; k < 8; ++k){
@@ -402,6 +408,8 @@ void drawNextBlock(WINDOW *w_next, const int block_next[4][4], int i_size){
 		}
 	}
 }
+
+// Ask the score of the user, and add it to the fp_file
 void appendScore(int i_score, int i_promptY, int i_promptX,FILE* fp_file){
 
 	WINDOW* w_askUser = newwin(9, 30, i_promptY, i_promptX);
@@ -442,7 +450,7 @@ void appendScore(int i_score, int i_promptY, int i_promptX,FILE* fp_file){
 	delwin(w_askUser);
 }
 
-
+// Print out the scores into an Ncurses-window
 void printScores(FILE* f, WINDOW* w, int i_startY, int i_startX){
 	char carr_maxNames[33]  = {' '};
 	int  iarr_maxScores[3]  = { 0 };
