@@ -1,3 +1,13 @@
+#ifndef STRING
+	#define STRING
+	#include <string.h>
+#endif
+
+#ifndef STAT
+	#define STAT
+	#include <sys/stat.h>
+#endif
+
 #ifndef STDIO
 	#define STDIO
 	#include <stdio.h>
@@ -53,6 +63,17 @@ int main(int argc, char *argv[])
     //---------------------------------------------------
     //trashy temporary counter that somehow pops up in every program i try to make
 	int i_tempCounter = 0;
+
+	char scoreFile[256];
+	const char *home = getenv("HOME");
+	strcpy(scoreFile, home);
+	strcat(scoreFile, "/.tetris");
+	struct stat st = {0};
+
+	if(stat(scoreFile, &st) == -1)
+		mkdir(scoreFile, 0700);
+	
+	strcat(scoreFile, "/scores.tetris");
 
     enum GAMESTATES{
         STATE_ALIVE = 1,
@@ -152,7 +173,7 @@ int main(int argc, char *argv[])
 
     mvwprintw(w_score,2,2,"Current score: %-7d",score);
 	mvwprintw(w_score,4,2,"--------------HIGHSCORES--------------");
-	FILE * f = fopen("./scores.tetris","a+");
+	FILE * f = fopen(scoreFile,"a+");
 	printScores(f,w_score,5,2);
 	fclose(f);
 
@@ -206,19 +227,19 @@ int main(int argc, char *argv[])
 				//Draw "next block"
 				drawNextBlock(w_nextBlock, block_next, i_blockTypeNext > 2 ? 3 : 4);
 
-                for(int i = 0; i < FIELD_HEIGHT*FIELD_WIDTH;++i)
-                    iarr_tempField[i] = 0;
+				for(int i = 0; i < FIELD_HEIGHT*FIELD_WIDTH;++i)
+					iarr_tempField[i] = 0;
 
-                //Apparently "clock" doesn't account for the 10ms caused by the "getch"-delay. Add them manually.
-                d_timeAccum += d_currentTime - d_prevTime + 0.01;
-                
-                mvwprintw(w_score, 2, 2, "            ");
-                mvwprintw(w_score, 2, 2, "Current score: %-7d",score);
-                wrefresh(w_score);
+				//Apparently "clock" doesn't account for the 10ms caused by the "getch"-delay. Add them manually.
+				d_timeAccum += d_currentTime - d_prevTime + 0.01;
 
-                int i_col = 0; 
-                i_col = colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
-                wrefresh(w_instrucs);
+				mvwprintw(w_score, 2, 2, "            ");
+				mvwprintw(w_score, 2, 2, "Current score: %-7d",score);
+				wrefresh(w_score);
+
+				int i_col = 0; 
+				i_col = colCheck(iarr_field,FIELD_HEIGHT,FIELD_WIDTH,block_active,i_activeYpos,i_activeXpos);
+				wrefresh(w_instrucs);
 
 				// when the timeAccum sets up a new block, use this to make sure
 				// That the keyHandler DOESNT set up a new  block; this would cause two blocks to collide
@@ -293,14 +314,12 @@ int main(int argc, char *argv[])
 				//only the first loop should handle the name of the player
 				if(i_tempCounter == 0){
 					++i_tempCounter;
-					FILE * scores = fopen("scores.tetris","ab+");
+					FILE * scores = fopen(scoreFile,"ab+");
 					appendScore(score,i_starty+4,i_startx-4,scores);
-					fclose(scores);
 					mvwprintw(w_score,4,2,"--------------HIGHSCORES--------------");
-					FILE * f = fopen("scores.tetris","a+");
 					printScores(f,w_score,5,2);
 					timeout(10);
-					fclose(f);
+					fclose(scores);
 					box(w_score,0,0);
 					wrefresh(w_score);
 				}

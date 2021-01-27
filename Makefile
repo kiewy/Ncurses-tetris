@@ -1,4 +1,4 @@
-CC=gcc
+CC=clang
 LDFLAGS=-lncurses
 CFLAGS=-Wall 
 
