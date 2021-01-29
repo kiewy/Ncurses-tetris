@@ -64,6 +64,8 @@ int main(int argc, char *argv[])
     //trashy temporary counter that somehow pops up in every program i try to make
 	int i_tempCounter = 0;
 
+
+	// Setup ~/.tetris/scores.tetris
 	char scoreFile[256];
 	const char *home = getenv("HOME");
 	strcpy(scoreFile, home);
@@ -437,24 +439,28 @@ void appendScore(int i_score, int i_promptY, int i_promptX,FILE* fp_file){
 
 	int c_new = ' ';
 	int i = 0;
-	
+
 	box(w_askUser,0,0);
 	mvwprintw(w_askUser, 2, 2,"YOU DIED.");
 	mvwprintw(w_askUser, 3, 2, "ENTER YOUR NAME:");
 	mvwprintw(w_askUser, 6, 2, "PRESS <ENTER> TO SUBMIT");
 	mvwprintw(w_askUser,5,2,"%2d characters left",10-i);
-	//Make getch blocking again!	
+	//Make getch blocking again!
 	timeout(-1);
 	wrefresh(w_askUser);
-	while(c_new != '\n'){
+	while(c_new != '\n' || i <= 2){
 		 c_new = getch();
-		
+
 		if(i > 0 && c_new == KEY_BACKSPACE){
 			cp_name[--i] = ' ';
 		}
-		else if(c_new != KEY_BACKSPACE && c_new != '\n' && i < 10){
-			cp_name[i] = c_new;
-			++i;
+		else if(c_new != KEY_BACKSPACE 
+				&& c_new != '\n' && i < 10
+				&&    ((c_new >= '0' && c_new <= '9') // Numbers
+					|| (c_new >= 'A' && c_new <= 'Z') // upcase
+					|| (c_new >= 'a' && c_new <= 'z') // lowercase
+				)){
+			cp_name[i++] = c_new;
 		}
 		
 		mvwprintw(w_askUser,4,2,"%-10s",cp_name);
