@@ -40,11 +40,16 @@ Suite* block_collision_suite(void)
 	Suite *s;
 	s = suite_create("collision");
 	// Create cases
-	TCase *tc_collision;
-	tc_collision = tcase_create("collision-bottom-left");
-	tcase_add_test(tc_collision, test_block_collision_lb);
+	TCase *tc_collision_bl, *tc_collision_oob_l;
+	tc_collision_bl = tcase_create("collision-bottom-left");
+	tcase_add_test(tc_collision_bl, test_block_collision_lb);
+
+	tc_collision_oob_l = tcase_create("collision-oob-left");
+	tcase_add_test(tc_collision_oob_l, test_block_collision_oob_left);
+
 	// Add cases to suite
-	suite_add_tcase(s, tc_collision);
+	suite_add_tcase(s, tc_collision_bl);
+	suite_add_tcase(s, tc_collision_oob_l);
 
 	return(s);
 }

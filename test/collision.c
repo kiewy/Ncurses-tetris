@@ -39,7 +39,20 @@ START_TEST(test_block_collision_lb)
 	int col = colCheck(field, 6, 6, block, 2, 0);
 
 	ck_assert_msg(col == 0b1100,
-			"BLOCK COLLISION TEST FAILED");
-	ck_assert_msg(1 == 1, "hoi");
+			"BLOCK COLLISION TEST: TOUCH LEFT BOTTOM FAILED");
 END_TEST
 
+START_TEST(test_block_collision_oob_left)
+{
+	int field[36];
+	for (int i = 35; i > 29; --i)
+		field[i] = 1;
+	field[27] = 1;
+	int block[4][4];
+	copyBlock(block, block_L);
+	rotateBlock(block, 3);
+	int col = colCheck(field, 6, 6, block, 4, 0);
+	ck_assert_msg(col == 0b1111,
+			"BLOCK COLLISION TEST: OUT-OF-BOUNDS LEFT FAILED");
+}
+END_TEST

@@ -207,9 +207,9 @@ int main(int argc, char *argv[])
     
     int cTemp = 'i';
     //----------------------------------------------
-    //            MAIN GAME LOOP YEEEEEE
+    //            MAIN GAME LOOP
     //----------------------------------------------
-    while(cTemp != 'q'){ // PRESS Q TO QUIT, LOSER
+    while(cTemp != 'q'){ // PRESS Q TO QUIT
 
 		box(w_nextBlock,0,0);
 		box(w_blocks,0,0);

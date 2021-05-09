@@ -19,3 +19,7 @@ test: ./bin/test
 
 ./bin/test: $(TESTSOURCES)
 	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(TESTFLAGS)
+
+.PHONY: clean
+clean:
+	-rm bin/main bin/test
