@@ -1,12 +1,25 @@
 CC=clang
 LDFLAGS=-lncurses
-CFLAGS=-Wall 
+CFLAGS=-Wall -O2
+TESTFLAGS = -lcheck `pkg-config --libs --cflags check`
 
-src = $(wildcard src/*.c)
-obj = $(src: src/%.c=obj/%.o) 
+SOURCES = $(wildcard src/*.c)
+HFILES  = $(wildcard src/*.h)
 
-./bin/main: $(obj)
-	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS)
+TESTSOURCES = $(wildcard test/*.c) $(filter-out src/main.c, $(SOURCES))
+TESTHFILES  = $(wildcard test/*.h)
 
-$(obj): obj/%.o :src/%.c
-	$(CC) $< -o $@ $(CFLAGS) $(LDFLAGS)
+tetris: ./bin/main
+
+test: ./bin/test
+	@exec ./bin/test
+
+./bin/main: $(SOURCES)
+	@echo "MAIN: COMPILING WITH: "
+	@echo " --  all: $^"
+	$(CC) $^  $(CFLAGS) $(LDFLAGS) -o $@
+
+./bin/test: $(TESTSOURCES)
+	@echo "TEST: compiling with: "
+	@echo " --  all: $^"
+	$(CC) $^ -o $@ $(CFLAGS) $(LDFLAGS) $(TESTFLAGS)
