@@ -48,7 +48,7 @@ void copyBlock(int block_in[4][4], const int block_original[4][4]){
 
 int colCheck(const int iarr_field[], const int i_fieldHeight, const int i_fieldWidth,
              const int block[4][4], const int blockY, const int blockX){
-    //Int direction: 0b(top)(right)(bottom)(left) is solid
+    //Int direction: 0b(left)(bottom)(right)(top) is solid
     //e.g: if the block of field[] that is below the lowest solid element in block[][] is solid,
     //return collision-direction = bottom => direction = 0b0010 = 2
     int direction = 0b0000;

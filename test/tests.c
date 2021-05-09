@@ -1,60 +1,73 @@
 #include <check.h>
-#include "../src/blocks.h"
-#include "../src/funcs.h"
+#include "test-util.h"
 
-int checkBlock(int a[4][4], int b[4][4]) {
-	for (int i = 0; i < 16; ++i) {
-		if (a[i%4][i/4] != b[i%4][i/4])
-			return 0;
-	}
-	return 1;
-}
+#ifndef BLOCKS
+	#include "../src/blocks.h"
+	#define BLOCKS
+#endif
 
-START_TEST(test_block_rotate)
+#ifndef FUNCS
+	#include "../src/funcs.h"
+	#define FUNCS
+#endif
+
+#include "rotation.c"
+#include "collision.c"
+
+Suite* block_rotation_suite(void)
 {
-	// Initialize new T-block
-	int newBlock[4][4];
-	copyBlock(newBlock, block_T);
-	// Rotate block
-	rotateBlock(newBlock,3);
-	
-	int block_rotated[4][4] = 
-	{{0, 0, 0, 0},
-	 {0, 0, 0, 0},
-	 {0, 0, 0, 0},
-	 {0, 0, 0, 0}};
-
-	ck_assert_msg(checkBlock(block_rotated, newBlock) == 1,
-			"Blocks aren't equal!!");
-}
-END_TEST
-
-Suite * block_suite(void)
-{
+	// Create suite
 	Suite *s;
-
-	TCase *tc_core;
 	s = suite_create("Blocks");
-	
-	tc_core = tcase_create("Core");
+	// Create cases
+	TCase *tc_T_rotation, *tc_I_rotation;
 
-	tcase_add_test(tc_core, test_block_rotate);
-	suite_add_tcase(s, tc_core);
+	tc_T_rotation = tcase_create("L-rotate");
+	tcase_add_test(tc_T_rotation, test_L_rotate_once);
 
-	return (s);
+	tc_I_rotation = tcase_create("I-rotate");
+	tcase_add_test(tc_I_rotation, test_I_rotate_once);
+
+	// Add cases to suite
+	suite_add_tcase(s, tc_T_rotation);
+	suite_add_tcase(s, tc_I_rotation);
+	return(s);
+}
+
+Suite* block_collision_suite(void)
+{
+	// Create suite
+	Suite *s;
+	s = suite_create("collision");
+	// Create cases
+	TCase *tc_collision;
+	tc_collision = tcase_create("collision-bottom-left");
+	tcase_add_test(tc_collision, test_block_collision_lb);
+	// Add cases to suite
+	suite_add_tcase(s, tc_collision);
+
+	return(s);
 }
 
 int main() {
 	int number_failed;
-	Suite *s;
 	SRunner *sr;
 
-	s = block_suite();
-	sr = srunner_create(s);
-
-	srunner_run_all(sr, CK_NORMAL);
+	// Block rotation suite
+	Suite *brs;
+	brs = block_rotation_suite();
+	sr = srunner_create(brs);
+	srunner_run_all(sr, CK_VERBOSE);
 	number_failed = srunner_ntests_failed(sr);
 	srunner_free(sr);
+
+	// Block collision suite
+	Suite *bcs;
+	bcs = block_collision_suite();
+	sr = srunner_create(bcs);
+	srunner_run_all(sr, CK_VERBOSE);
+	number_failed = srunner_ntests_failed(sr);
+	srunner_free(sr);
+
 	return (number_failed == 0) ? 0 : -1;
 }
-
