@@ -11,7 +11,7 @@
 	#define FUNCS
 #endif
 
-START_TEST(test_L_rotate_once)
+START_TEST(test_T_rotate_once)
 {
 	// Initialize new T-block
 	int newBlock[4][4];
@@ -25,7 +25,7 @@ START_TEST(test_L_rotate_once)
 	 {0, 3, 0, 0},
 	 {0, 0, 0, 0}};
 
-	ck_assert_msg(checkBlock(block_rotated, newBlock) == 1,
+	ck_assert_msg(checkBlock(block_rotated, newBlock) >= 0,
 			"T BLOCK ROTATION TEST FAILED");
 }
 END_TEST
@@ -40,7 +40,7 @@ START_TEST(test_I_rotate_once)
 		{2, 2, 2, 2},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0}};
-	ck_assert_msg(checkBlock(block_rotated, block) == 1,
+	ck_assert_msg(checkBlock(block_rotated, block) <= 0,
 			"I BLOCK ROTATION TEST FAILED");
 }
 END_TEST
