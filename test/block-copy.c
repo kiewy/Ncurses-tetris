@@ -13,7 +13,7 @@
 #endif
 
 START_TEST(test_block_copy)
-
+{
 	int block[4][4];
 
 	copyBlock(block, block_Z);
@@ -25,12 +25,10 @@ START_TEST(test_block_copy)
 		{0, 0, 0, 0},
 	};
 
-	printf("After blockCheck: %d\n", checkBlock(block, block_ref));
-
 	int blocksEqual = checkBlock(block, block_ref);
 
 	//ck_assert_msg(blocksEqual <= 0,
 			//"BLOCK COPY TEST FAILED");
 	ck_assert(blocksEqual <= 0);
-
+}
 END_TEST

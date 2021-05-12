@@ -22,4 +22,4 @@ test: ./bin/test
 
 .PHONY: clean
 clean:
-	-rm bin/main bin/test
+	-rm bin/tetris bin/test

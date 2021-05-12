@@ -15,8 +15,8 @@
 #include "rotation.c"
 #include "collision.c"
 
-#define VERBOSITY CK_VERBOSE
-// #define VERBOSITY CK_NORMAL
+//#define VERBOSITY CK_VERBOSE
+#define VERBOSITY CK_NORMAL
 
 Suite* block_copy_suite(void)
 {
