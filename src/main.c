@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
 	const char *scoreDir = getenv("HOME");
 	//const char *scoreDir = "/usr/share/ntris/";
 	strcpy(scoreFile, scoreDir);
+    strcat(scoreFile, "/.tetris/");
 	struct stat st = {0};
 
 	if(stat(scoreFile, &st) == -1)
