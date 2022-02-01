@@ -67,13 +67,13 @@ int main(int argc, char *argv[])
 
 	// Setup ~/.tetris/scores.tetris
 	char scoreFile[256];
-	const char *home = getenv("HOME");
-	strcpy(scoreFile, home);
-	strcat(scoreFile, "/.tetris");
+	const char *scoreDir = getenv("HOME");
+	//const char *scoreDir = "/usr/share/ntris/";
+	strcpy(scoreFile, scoreDir);
 	struct stat st = {0};
 
 	if(stat(scoreFile, &st) == -1)
-		mkdir(scoreFile, 0700);
+		mkdir(scoreFile, 0755);
 	
 	strcat(scoreFile, "/scores.tetris");
 
@@ -155,7 +155,6 @@ int main(int argc, char *argv[])
     //-------------------------------------------
     //        SETTING WINDOWS
     //-------------------------------------------
-    
     int i_maxX,i_maxY;
     getmaxyx(stdscr,i_maxY,i_maxX);
   
@@ -264,7 +263,7 @@ int main(int argc, char *argv[])
                         score += i_blockPoints;
                     }
                     d_timeAccum = 0;
-                }
+				}
 
 				if(!skip_keycheck) {
 					keyHandler(cTemp,block_active,block_next,

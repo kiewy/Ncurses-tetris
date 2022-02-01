@@ -15,7 +15,7 @@ void keyHandler(int key,
                 int iarr_field[], int iarr_tempField[], int i_fieldHeight, int i_fieldWidth,
                 int * ip_activeYpos, int * ip_activeXpos, int i_col, int * score,
                 int i_blockPoints, int * ip_blockType, int * ip_blockTypeNext,
-				double * dp_dropTime){
+                double * dp_dropTime){
     switch(key){
         case KEY_RIGHT:
             if( (i_col & 2) < 2) 
@@ -31,12 +31,12 @@ void keyHandler(int key,
             if( (i_col & 4) == 4){
                 moveBlock(iarr_field,i_fieldHeight,i_fieldWidth,block_active,*ip_activeYpos,*ip_activeXpos);   
                 *ip_blockType = *ip_blockTypeNext;
-				copyBlock(block_active,block_next);
-				*ip_blockTypeNext = copyRandomBlock(block_next);
+                copyBlock(block_active,block_next);
+                *ip_blockTypeNext = copyRandomBlock(block_next);
                 *ip_activeXpos = i_fieldWidth/2 - 2;
                 *ip_activeYpos = 0;
                 *score += i_blockPoints;
-				*dp_dropTime = adjustSpeed(*score); 
+                *dp_dropTime = adjustSpeed(*score); 
             }
             break;
         case ' ':
@@ -47,11 +47,11 @@ void keyHandler(int key,
             moveBlock(iarr_field,i_fieldHeight,i_fieldWidth,block_active,*ip_activeYpos,*ip_activeXpos);
             *ip_activeXpos = i_fieldWidth/2 - 1;
             *ip_activeYpos = 0;
-			*ip_blockType = *ip_blockTypeNext;
-			copyBlock(block_active,block_next);
+            *ip_blockType = *ip_blockTypeNext;
+            copyBlock(block_active,block_next);
             *ip_blockTypeNext = copyRandomBlock(block_next);
             *score += i_blockPoints;
-			*dp_dropTime = adjustSpeed(*score);
+            *dp_dropTime = adjustSpeed(*score);
             break;
         case KEY_UP:
             do{}while(0);

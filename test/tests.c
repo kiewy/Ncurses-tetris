@@ -93,7 +93,7 @@ Suite* block_collision_suite(void)
 }
 
 int main() {
-	int number_failed;
+	int number_failed = 0;
 	SRunner *sr;
 
 	// Block copy suite
@@ -101,7 +101,7 @@ int main() {
 	blkcs = block_copy_suite();
 	sr = srunner_create(blkcs);
 	srunner_run_all(sr, VERBOSITY);
-	number_failed = srunner_ntests_failed(sr);
+	number_failed += srunner_ntests_failed(sr);
 	srunner_free(sr);
 
 	// Block rotation suite
@@ -109,7 +109,7 @@ int main() {
 	brs = block_rotation_suite();
 	sr = srunner_create(brs);
 	srunner_run_all(sr, VERBOSITY);
-	number_failed = srunner_ntests_failed(sr);
+	number_failed += srunner_ntests_failed(sr);
 	srunner_free(sr);
 
 	// Block collision suite
@@ -117,7 +117,7 @@ int main() {
 	bcs = block_collision_suite();
 	sr = srunner_create(bcs);
 	srunner_run_all(sr, VERBOSITY);
-	number_failed = srunner_ntests_failed(sr);
+	number_failed += srunner_ntests_failed(sr);
 	srunner_free(sr);
 
 	return (number_failed == 0) ? 0 : -1;
